@@ -1,1 +1,1 @@
-from .yolox_detector import YOLOXDetector
+from .yolox.yolox_detector import YOLOXDetector

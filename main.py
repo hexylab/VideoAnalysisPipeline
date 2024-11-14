@@ -1,7 +1,7 @@
 import cv2
 
-from detectors.yolox_detector import YOLOXDetector
-from trackers.bytetrack_tracker import ByteTrackTracker
+from detectors.yolox.yolox_detector import YOLOXDetector
+from trackers.bytetrack.bytetrack_tracker import ByteTrackTracker
 from pipeline.pipeline import Pipeline
 from pipeline.frame import Frame
 from utils.data_loader import CameraDataLoader

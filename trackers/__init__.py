@@ -1,1 +1,1 @@
-from .bytetrack_tracker import ByteTrackTracker
+from .bytetrack.bytetrack_tracker import ByteTrackTracker
