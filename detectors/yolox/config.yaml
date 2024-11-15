@@ -1,4 +1,4 @@
-model_path: "model/yolo-nano.pth"
+model_path: "detectors/yolox/model/yolox_nano.pth"
 input_shape: [416, 416]
 class_score_th: 0.3
 nms_th: 0.45

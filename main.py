@@ -9,10 +9,9 @@ from utils.exporter import TextFileExporter
 from utils.visualizer import YOLOXVisualizer
 
 # 必要なインスタンスを作成
+data_loader = CameraDataLoader(source=0)
 detector = YOLOXDetector()
 tracker = ByteTrackTracker()
-data_loader = CameraDataLoader()
-exporter = TextFileExporter()
 visualizer = YOLOXVisualizer()
 
 # フレームごとにパイプライン処理を実行
@@ -21,17 +20,10 @@ for frame_number, frame_data in enumerate(data_loader):
 
     # パイプラインにデータを流す
     pipeline = Pipeline(frame)
-    processed_frame = (
-        pipeline
-        .add_step(detector.detect)
-        .add_step(tracker.track, dependencies=[detector.detect])
-        .execute()
-    )
-
-    # 処理結果をエクスポート
-    exporter.export(processed_frame, frame_number)
-
-    # 可視化
+    processed_frame = (pipeline
+                       .add_step(detector.detect)
+                       .add_step(tracker.track, dependencies=[detector.detect])
+                       .execute())
     if not visualizer.visualize(processed_frame):
         break  # 'q'キーで終了
 

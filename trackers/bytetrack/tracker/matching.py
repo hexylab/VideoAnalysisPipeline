@@ -5,7 +5,7 @@ from scipy.spatial.distance import cdist
 
 
 # from byte_tracker.tracker import kalman_filter
-from Tracker.bytetrack.tracker import kalman_filter
+from ..tracker import kalman_filter
 
 
 def merge_matches(m1, m2, shape):

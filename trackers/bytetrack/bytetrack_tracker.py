@@ -2,6 +2,7 @@
 from ..base_tracker import Tracker
 import copy
 import numpy as np
+import time
 from .tracker.byte_tracker import BYTETracker
 
 class dict_dot_notation(dict):
@@ -10,16 +11,18 @@ class dict_dot_notation(dict):
         self.__dict__ = self
 
 class ByteTrackTracker(Tracker):
-    def __init__(self, config_path="./config.yaml"):
-        super().__init__(config_path)  # 基底クラスの__init__を呼び出してコンフィグを読み込む
+    def __init__(self, config_path="trackers/bytetrack/config.yaml"):
+        super().__init__(config_path) 
         self.track_thresh = self.config["track_thresh"]
         self.track_buffer = self.config["track_buffer"]
         self.match_thresh = self.config["match_thresh"]
         self.min_box_area = self.config["min_box_area"]
+        self.fps = 30
         self.tracker_dict = {}
+        self.track_id_dict = {}
 
     def track(self, frame):
-        # 未トラッキングのクラスのトラッキングインスタンスを追加
+        start_time = time.time()
         for class_id in np.unique(frame.class_ids):
             if not int(class_id) in self.tracker_dict:
                 self.tracker_dict[int(class_id)] = BYTETracker(
@@ -40,7 +43,6 @@ class ByteTrackTracker(Tracker):
         for class_id in self.tracker_dict.keys():
             # 対象クラス抽出
             target_index = np.in1d(frame.class_ids, np.array(int(class_id)))
-
             if len(target_index) == 0:
                 continue
 
@@ -55,7 +57,7 @@ class ByteTrackTracker(Tracker):
             # トラッカー更新
             result = self._tracker_update(
                 self.tracker_dict[class_id],
-                frame.image_data,
+                frame.source_img,
                 detections,
             )
 
@@ -67,11 +69,19 @@ class ByteTrackTracker(Tracker):
                 t_class_ids.append(int(class_id))
                 t_classes.append(frame.classes[np.where(frame.class_ids==int(class_id))[0][0]])
 
+        # トラッキングIDと連番の紐付け
+        for track_id in t_ids:
+            if track_id not in self.track_id_dict:
+                new_id = len(self.track_id_dict)
+                self.track_id_dict[track_id] = new_id
+            frame.track_ids.append(self.track_id_dict[track_id])
+
         frame.bboxes = t_bboxes
         frame.class_ids = t_class_ids
         frame.classes = t_classes
         frame.scores = t_scores
-        frame.tracking_ids = t_ids
+        frame.elapsed_time += time.time() - start_time
+
         return frame
     
 

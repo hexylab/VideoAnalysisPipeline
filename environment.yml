@@ -1,4 +1,4 @@
-name: video
+name: vap
 channels:
   - defaults
   - https://repo.anaconda.com/pkgs/main
@@ -102,4 +102,3 @@ dependencies:
       - werkzeug==3.0.6
       - yolox==0.3.0
       - zipp==3.20.2
-prefix: /home/hexyl/anaconda3/envs/video

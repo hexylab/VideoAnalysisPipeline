@@ -37,8 +37,8 @@ class CameraDataLoader(DataLoader):
     def release(self):
         self.cap.release()
 
-# MP4ファイルから読み込む派生クラス
-class MP4DataLoader(DataLoader):
+# Videoファイルから読み込む派生クラス
+class VideoDataLoader(DataLoader):
     def __init__(self, filepath):
         self.cap = cv2.VideoCapture(filepath)
         if not self.cap.isOpened():
