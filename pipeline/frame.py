@@ -6,6 +6,9 @@ class Frame:
         self.source_img = image_data
         self.vis_img = image_data
         self.timestamp = datetime.now()
+        self.fps = 0
+        self.width = 0
+        self.height = 0
         self.elapsed_time = 0
         self.bboxes = []
         self.class_ids = []

@@ -17,7 +17,6 @@ class ByteTrackTracker(Tracker):
         self.track_buffer = self.config["track_buffer"]
         self.match_thresh = self.config["match_thresh"]
         self.min_box_area = self.config["min_box_area"]
-        self.fps = 30
         self.tracker_dict = {}
         self.track_id_dict = {}
 
@@ -32,7 +31,7 @@ class ByteTrackTracker(Tracker):
                         'match_thresh': self.match_thresh,
                         'mot20': False,
                     }),
-                    frame_rate=self.fps,
+                    frame_rate=frame.fps,
                 )
 
         t_ids = []

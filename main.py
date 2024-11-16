@@ -1,32 +1,47 @@
+# main.py
 import cv2
-
+from pipeline.pipeline import Pipeline
+from utils.data_loader import CameraDataLoader
 from detectors.yolox.yolox_detector import YOLOXDetector
 from trackers.bytetrack.bytetrack_tracker import ByteTrackTracker
-from pipeline.pipeline import Pipeline
-from pipeline.frame import Frame
-from utils.data_loader import CameraDataLoader
-from utils.exporter import TextFileExporter
-from utils.visualizer import YOLOXVisualizer
+from utils.visualizer import DetectTrackVisualizer
+from utils.exporter import MP4Exporter
 
-# 必要なインスタンスを作成
-data_loader = CameraDataLoader(source=0)
-detector = YOLOXDetector()
-tracker = ByteTrackTracker()
-visualizer = YOLOXVisualizer()
 
-# フレームごとにパイプライン処理を実行
-for frame_number, frame_data in enumerate(data_loader):
-    frame = Frame(frame_data)
+def main():
+    pipeline = Pipeline(frame=None)
 
-    # パイプラインにデータを流す
-    pipeline = Pipeline(frame)
-    processed_frame = (pipeline
-                       .add_step(detector.detect)
-                       .add_step(tracker.track, dependencies=[detector.detect])
-                       .execute())
-    if not visualizer.visualize(processed_frame):
-        break  # 'q'キーで終了
+    # 処理タスクのインスタンスを作成
+    camera_loader = CameraDataLoader(source=0)
+    camerastream = camera_loader.stream 
+    yolox_detector = YOLOXDetector().detect
+    bytetrack_tracker = ByteTrackTracker().track
+    draw_frame = DetectTrackVisualizer().draw_frame
+    exporter = MP4Exporter()
+    mp4_exporter = exporter.export
 
-# リソースの解放
-data_loader.release()
-cv2.destroyAllWindows()
+    # 処理パイプラインを作成
+    pipeline.add_step(camerastream)
+    pipeline.add_step(yolox_detector, dependencies=[camerastream])
+    pipeline.add_step(bytetrack_tracker, dependencies=[yolox_detector])
+    pipeline.add_step(draw_frame, dependencies=[bytetrack_tracker])
+    pipeline.add_step(mp4_exporter, dependencies=[draw_frame])
+
+    # 処理パイプラインのDAGを画像出力
+    pipeline.save_dag_image("pipeline_dag.png")
+    
+    try:
+        while True:
+            pipeline.execute()
+
+    except KeyboardInterrupt:
+        print("処理が中断されました")
+
+    finally:
+        camera_loader.release()
+        exporter.close()
+        cv2.destroyAllWindows()
+        print("終了しました")
+
+if __name__ == "__main__":
+    main()

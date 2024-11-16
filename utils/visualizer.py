@@ -7,26 +7,20 @@ class Visualizer(ABC):
     def visualize(self, frame):
         pass
 
-# YOLOXの認識結果を可視化する派生クラス
-class YOLOXVisualizer(Visualizer):
+# 認識結果を可視化する派生クラス
+class DetectTrackVisualizer(Visualizer):
     def visualize(self, frame):
         frame = self.draw_frame(frame)
         cv2.imshow("YOLOX Processed Frame", frame.vis_img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             return False
-        return True
-
-    def get_id_color(self, index):
-        temp_index = abs(int(index + 1)) * 3
-        color = ((37 * temp_index) % 255, (17 * temp_index) % 255, (29 * temp_index) % 255)
-        return color
-
+        return frame
 
     def draw_frame(self, frame):
         draw_img = frame.source_img
         for id, bbox, score, class_name in zip(frame.track_ids, frame.bboxes, frame.scores, frame.classes):
             x1, y1, x2, y2 = int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
-            color = self.get_id_color(int(id))
+            color = self._get_id_color(int(id))
             # バウンディングボックス
             draw_img = cv2.rectangle(
                 draw_img,
@@ -74,3 +68,9 @@ class YOLOXVisualizer(Visualizer):
         )
         frame.vis_img = draw_img
         return frame
+    
+
+    def _get_id_color(self, index):
+        temp_index = abs(int(index + 1)) * 3
+        color = ((37 * temp_index) % 255, (17 * temp_index) % 255, (29 * temp_index) % 255)
+        return color
